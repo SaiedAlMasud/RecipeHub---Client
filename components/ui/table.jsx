@@ -25,7 +25,7 @@ function TableHeader({
   return (
     <thead
       data-slot="table-header"
-      className={cn("[&_tr]:border-b", className)}
+      className={cn("", className)}
       {...props} />
   );
 }
@@ -49,7 +49,7 @@ function TableFooter({
   return (
     <tfoot
       data-slot="table-footer"
-      className={cn("border-t bg-muted/50 font-medium [&>tr]:last:border-b-0", className)}
+      className={cn("bg-muted/50 font-medium [&>tr]:last:border-b-0", className)}
       {...props} />
   );
 }
@@ -62,7 +62,7 @@ function TableRow({
     <tr
       data-slot="table-row"
       className={cn(
-        "border-b transition-colors hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted",
+        "transition-colors hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted",
         className
       )}
       {...props} />
