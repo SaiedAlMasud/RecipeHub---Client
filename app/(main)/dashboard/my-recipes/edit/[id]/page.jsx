@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 import toast from "react-hot-toast";
+import { authClient } from "@/lib/auth-client";
 
 export default function EditRecipePage({ params }) {
     const { id } = use(params);
@@ -63,12 +64,14 @@ export default function EditRecipePage({ params }) {
         };
 
         try {
+            const tokenData = await authClient.token();
             const response = await fetch(
                 `${process.env.NEXT_PUBLIC_API_URL}/recipes/${id}`,
                 {
                     method: "PATCH",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${tokenData.data.token}`,
                     },
                     body: JSON.stringify(updatedRecipe),
                 }
@@ -129,7 +132,7 @@ export default function EditRecipePage({ params }) {
                 </div>
 
                 <Card className="shadow-xl p-5">
-                    
+
 
                     <CardContent>
                         <form

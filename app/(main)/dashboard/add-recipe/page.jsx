@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
+import { authClient } from "@/lib/auth-client";
 
 export default function AddRecipePage() {
     const router = useRouter();
@@ -21,6 +22,8 @@ export default function AddRecipePage() {
         setLoading(true);
 
         const form = e.target;
+        const session = await authClient.getSession();
+        const user = session.data.user;
 
         const recipe = {
             recipeName: form.recipeName.value,
@@ -32,6 +35,11 @@ export default function AddRecipePage() {
             ingredients: form.ingredients.value,
             instructions: form.instructions.value,
 
+            authorId: user.id,
+            authorName: user.name,
+            authorEmail: user.email,
+            authorImage: user.image,
+
             likesCount: 0,
             isFeatured: false,
             status: "active",
@@ -41,16 +49,25 @@ export default function AddRecipePage() {
         };
 
         try {
+            console.log("Step 1");
+
+            const tokenData = await authClient.token();
+
+            console.log("Step 2", tokenData);
+
             const response = await fetch(
                 `${process.env.NEXT_PUBLIC_API_URL}/recipes`,
                 {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${tokenData?.data?.token}`,
                     },
                     body: JSON.stringify(recipe),
                 }
             );
+
+            console.log("Step 3");
 
             const data = await response.json();
 

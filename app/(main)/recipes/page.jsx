@@ -1,7 +1,8 @@
 import React from 'react';
 import RecipePage from './recipes';
 
-const RecipesPage = () => {
+const RecipesPage = async () => {
+
     return (
         <div className='flex justify-center'>
             <RecipePage />

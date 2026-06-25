@@ -6,6 +6,7 @@ import Image from "next/image";
 import toast from "react-hot-toast";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Clock } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
 
 export default function MyRecipesPage() {
     const [recipes, setRecipes] = useState([]);
@@ -18,8 +19,14 @@ export default function MyRecipesPage() {
 
     const fetchRecipes = async () => {
         try {
+            const tokenData = await authClient.token();
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/recipes`
+                `${process.env.NEXT_PUBLIC_API_URL}/my-recipes`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${tokenData.data.token}`,
+                    },
+                }
             );
             const data = await response.json();
             setRecipes(data.recipes || data || []);
