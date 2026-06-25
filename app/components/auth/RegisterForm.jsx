@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { Eye, EyeOff, ChefHat } from "lucide-react";
 
-import { authClient } from "@/lib/auth-client";
+import { signUp } from "@/lib/auth-client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -81,7 +81,7 @@ export default function RegisterForm() {
         }
 
         try {
-            const { data, error } = await authClient.signUp.email({
+            const { data, error } = await signUp.email({
                 name,
                 email,
                 password,
@@ -95,7 +95,7 @@ export default function RegisterForm() {
             }
 
             router.push("/?registered=true");
-            
+
         } catch (err) {
             console.error(err);
             toast.error("Something went wrong.");

@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { authClient } from "@/lib/auth-client";
+import { signIn } from "@/lib/auth-client";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -21,7 +21,7 @@ export default function LoginForm() {
 
   const handleGoogleLogin = async () => {
     try {
-      await authClient.signIn.social({
+      await signIn.social({
         provider: "google",
         callbackURL: "/",
       });
@@ -48,7 +48,7 @@ export default function LoginForm() {
     }
 
     try {
-      const { data, error } = await authClient.signIn.email({
+      const { data, error } = await signIn.email({
         email,
         password,
         callbackURL: "/?loggedIn=true",
