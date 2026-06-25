@@ -94,9 +94,8 @@ export default function RegisterForm() {
                 return;
             }
 
-            toast.success("Registration Successful!");
-
-            router.push("/");
+            router.push("/?registered=true");
+            
         } catch (err) {
             console.error(err);
             toast.error("Something went wrong.");

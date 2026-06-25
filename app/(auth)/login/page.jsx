@@ -1,7 +1,9 @@
+import LoginForm from "@/app/components/auth/LoginForm";
+
+export const metadata = {
+  title: "Login | RecipeHub",
+};
+
 export default function LoginPage() {
-  return (
-    <div>
-      Login Page
-    </div>
-  );
+  return <LoginForm />;
 }
