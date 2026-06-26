@@ -2,6 +2,9 @@
 
 import Image from "next/image";
 import { use, useEffect, useState } from "react";
+import { Heart } from "lucide-react";
+import toast from "react-hot-toast";
+import { authClient } from "@/lib/auth-client";
 
 export default function RecipeDetailsPage({ params }) {
     const { id } = use(params);
@@ -9,9 +12,12 @@ export default function RecipeDetailsPage({ params }) {
     const [recipe, setRecipe] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [isFavorite, setIsFavorite] = useState(false);
+    const [favoriteLoading, setFavoriteLoading] = useState(false);
 
     useEffect(() => {
         fetchRecipe();
+        checkFavorite();
     }, []);
 
     async function fetchRecipe() {
@@ -34,6 +40,103 @@ export default function RecipeDetailsPage({ params }) {
             setError("Failed to load recipe");
         } finally {
             setLoading(false);
+        }
+    }
+
+    async function checkFavorite() {
+        try {
+            const tokenData = await authClient.token();
+
+            if (!tokenData?.data?.token) return;
+
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/favorites/check/${id}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${tokenData.data.token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            setIsFavorite(data.isFavorite);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    async function addFavorite() {
+        try {
+            setFavoriteLoading(true);
+
+            const tokenData = await authClient.token();
+
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/favorites`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${tokenData.data.token}`,
+                    },
+                    body: JSON.stringify({
+                        recipeId: recipe._id,
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                toast.error(data.message);
+                return;
+            }
+
+            toast.success("Recipe added to favorites.");
+
+            setIsFavorite(true);
+        } catch (error) {
+            console.error(error);
+
+            toast.error("Something went wrong.");
+        } finally {
+            setFavoriteLoading(false);
+        }
+    }
+
+    async function removeFavorite() {
+        try {
+            setFavoriteLoading(true);
+
+            const tokenData = await authClient.token();
+
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/favorites/${recipe._id}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${tokenData.data.token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                toast.error(data.message);
+                return;
+            }
+
+            toast.success("Favorite removed.");
+
+            setIsFavorite(false);
+        } catch (error) {
+            console.error(error);
+
+            toast.error("Something went wrong.");
+        } finally {
+            setFavoriteLoading(false);
         }
     }
 
@@ -68,7 +171,7 @@ export default function RecipeDetailsPage({ params }) {
     return (
         <section className="w-full px-6 py-10">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                <div className="relative h-full min-h-[500px]">
+                <div className="relative h-full min-h-125">
                     <Image
                         src={
                             recipe.recipeImage ||
@@ -169,8 +272,24 @@ export default function RecipeDetailsPage({ params }) {
                             ❤️ Like
                         </button>
 
-                        <button className="rounded-xl bg-yellow-500 px-5 py-3 text-white">
-                            ⭐ Favorite
+                        <button
+                            onClick={isFavorite ? removeFavorite : addFavorite}
+                            disabled={favoriteLoading}
+                            className={`flex items-center gap-2 rounded-xl px-5 py-3 text-white transition ${isFavorite
+                                    ? "bg-pink-600 hover:bg-pink-700"
+                                    : "bg-yellow-500 hover:bg-yellow-600"
+                                }`}
+                        >
+                            <Heart
+                                size={18}
+                                fill={isFavorite ? "white" : "none"}
+                            />
+
+                            {favoriteLoading
+                                ? "Loading..."
+                                : isFavorite
+                                    ? "Remove Favorite"
+                                    : "Add Favorite"}
                         </button>
 
                         <button className="rounded-xl bg-purple-500 px-5 py-3 text-white">

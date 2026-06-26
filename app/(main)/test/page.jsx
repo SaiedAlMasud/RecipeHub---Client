@@ -3,19 +3,38 @@
 import { authClient } from "@/lib/auth-client";
 
 export default function TestPage() {
-  const handleClick = async () => {
-    const tokenData = await authClient.token();
+    const handleClick = async () => {
+        try {
+            const tokenData = await authClient.token();
 
-    console.log(tokenData);
-    alert(tokenData?.data?.token || "No token found");
-  };
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/favorites/check/6a3e08ad95911be1ce67fd7c`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${tokenData.data.token}`,
+                    },
+                }
+            );
 
-  return (
-    <button
-      onClick={handleClick}
-      className="rounded bg-blue-500 px-4 py-2 text-white"
-    >
-      Get JWT Token
-    </button>
-  );
+            const data = await response.json();
+
+            console.log(data);
+
+            alert(JSON.stringify(data, null, 2));
+        } catch (error) {
+            console.error(error);
+            alert("Request Failed");
+        }
+    };
+
+    return (
+        <div className="flex min-h-screen items-center justify-center">
+            <button
+                onClick={handleClick}
+                className="rounded bg-blue-600 px-6 py-3 text-white"
+            >
+                Test Check Favorite
+            </button>
+        </div>
+    );
 }
