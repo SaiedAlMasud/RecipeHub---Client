@@ -8,7 +8,7 @@ export default function TestPage() {
             const tokenData = await authClient.token();
 
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/favorites/check/6a3e08ad95911be1ce67fd7c`,
+                `${process.env.NEXT_PUBLIC_API_URL}/recipe-limit`,
                 {
                     headers: {
                         Authorization: `Bearer ${tokenData.data.token}`,
@@ -23,7 +23,6 @@ export default function TestPage() {
             alert(JSON.stringify(data, null, 2));
         } catch (error) {
             console.error(error);
-            alert("Request Failed");
         }
     };
 
@@ -33,7 +32,7 @@ export default function TestPage() {
                 onClick={handleClick}
                 className="rounded bg-blue-600 px-6 py-3 text-white"
             >
-                Test Check Favorite
+                Test Recipe Limit
             </button>
         </div>
     );
