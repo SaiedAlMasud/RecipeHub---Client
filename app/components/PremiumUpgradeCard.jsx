@@ -1,6 +1,7 @@
 "use client";
 
 import { Crown } from "lucide-react";
+import Link from "next/link";
 
 export default function PremiumUpgradeCard() {
     return (
@@ -36,9 +37,11 @@ export default function PremiumUpgradeCard() {
                     </ul>
                 </div>
 
-                <button className="mt-8 w-full rounded-xl bg-linear-to-r from-[#FF6B35] to-[#FF9F1C] py-3 text-lg font-semibold text-white transition hover:opacity-90">
-                    Upgrade Now
-                </button>
+                <Link href="/premium">
+                    <button className="mt-8 w-full rounded-xl bg-linear-to-r from-[#FF6B35] to-[#FF9F1C] py-3 text-lg font-semibold text-white transition hover:opacity-90">
+                        Upgrade Now
+                    </button>
+                </Link>
             </div>
         </div>
     );
