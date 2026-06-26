@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { LoaderCircle } from "lucide-react";
-import { authClient } from "@/lib/auth-client";
 import Image from "next/image";
+import Link from "next/link";
+import toast from "react-hot-toast";
+import { LoaderCircle, Eye, Trash2 } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
 
 export default function FavoritesPage() {
     const [favorites, setFavorites] = useState([]);
@@ -38,10 +40,45 @@ export default function FavoritesPage() {
         }
     }
 
+    async function removeFavorite(recipeId) {
+        try {
+            const tokenData = await authClient.token();
+
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/favorites/${recipeId}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${tokenData.data.token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                toast.error(data.message);
+                return;
+            }
+
+            toast.success("Favorite removed.");
+
+            setFavorites((prev) =>
+                prev.filter((recipe) => recipe._id !== recipeId)
+            );
+        } catch (error) {
+            console.error(error);
+            toast.error("Something went wrong.");
+        }
+    }
+
     if (loading) {
         return (
-            <div className="flex min-h-[70vh] items-center justify-center">
-                <LoaderCircle className="h-10 w-10 animate-spin text-orange-500" />
+            <div className="flex h-screen items-center justify-center">
+                <div className="text-center">
+                    <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-[#FF6B35]"></div>
+                    <p className="mt-4">Loading Recipe...</p>
+                </div>
             </div>
         );
     }
@@ -108,6 +145,23 @@ export default function FavoritesPage() {
                                     <span>
                                         ❤️ {recipe.likesCount}
                                     </span>
+                                </div>
+                                <div className="mt-6 flex gap-3">
+                                    <Link
+                                        href={`/recipes/${recipe._id}`}
+                                        className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 py-3 text-white transition hover:bg-orange-600"
+                                    >
+                                        <Eye size={18} />
+                                        View Details
+                                    </Link>
+
+                                    <button
+                                        onClick={() => removeFavorite(recipe._id)}
+                                        className="flex items-center justify-center gap-2 rounded-xl bg-red-500 px-4 py-3 text-white transition hover:bg-red-600"
+                                    >
+                                        <Trash2 size={18} />
+                                        Remove
+                                    </button>
                                 </div>
                             </div>
                         </div>
