@@ -8,9 +8,8 @@ export default function TestPage() {
         const tokenData = await authClient.token();
 
         const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/admin/reports/6a3f8731c57f111e1bb709a3`,
+            `${process.env.NEXT_PUBLIC_API_URL}/admin/transactions`,
             {
-                method: "DELETE",
                 headers: {
                     Authorization: `Bearer ${tokenData.data.token}`,
                 },

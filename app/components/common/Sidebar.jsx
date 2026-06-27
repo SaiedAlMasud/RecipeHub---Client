@@ -124,7 +124,7 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="flex h-screen w-72 flex-col border-r border-white/10 bg-[#111827] text-white">
+    <aside className="fixed left-0 top-0 z-50 flex h-screen w-72 flex-col border-r border-white/10 bg-[#111827] text-white">
       {/* Logo */}
       <div className="border-b border-white/10 p-6">
         <h1 className="bg-linear-to-r from-[#FF512F] via-[#F09819] to-[#FFD200] bg-clip-text text-3xl font-bold text-transparent">

@@ -4,6 +4,11 @@ import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import FeaturedRecipes from "../components/home/FeaturedRecipes";
+import HeroBanner from "../components/home/HeroBanner";
+import PopularRecipes from "../components/home/PopularRecipes";
+import WhyChooseUs from "../components/home/WhyChooseUs";
+import HowItWorks from "../components/home/HowItWorks";
+import Footer from "../components/common/Footer";
 
 const Homepage = () => {
   const router = useRouter();
@@ -30,7 +35,12 @@ const Homepage = () => {
 
   return (
     <div>
+      <HeroBanner />
       <FeaturedRecipes />
+      <PopularRecipes />
+      <WhyChooseUs />
+      <HowItWorks />
+      <Footer />
     </div>
   );
 };
