@@ -8,16 +8,12 @@ export default function TestPage() {
             const tokenData = await authClient.token();
 
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/payment-success`,
+                `${process.env.NEXT_PUBLIC_API_URL}/admin/users/6a3d4a452d9b3305255f5502/block`,
                 {
-                    method: "POST",
+                    method: "PATCH",
                     headers: {
-                        "Content-Type": "application/json",
                         Authorization: `Bearer ${tokenData.data.token}`,
                     },
-                    body: JSON.stringify({
-                        sessionId: "cs_test_a18wa1er1LcinqJwBjESqWTjGXJU1riwZpds22qQ19opj9M49P75ThcBNW",
-                    }),
                 }
             );
 
