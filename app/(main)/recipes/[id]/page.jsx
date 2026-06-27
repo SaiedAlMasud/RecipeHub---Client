@@ -5,6 +5,19 @@ import { use, useEffect, useState } from "react";
 import { Heart } from "lucide-react";
 import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import LoadingSpinner from "@/app/components/LoadingSpinner";
 
 export default function RecipeDetailsPage({ params }) {
     const { id } = use(params);
@@ -14,6 +27,10 @@ export default function RecipeDetailsPage({ params }) {
     const [error, setError] = useState("");
     const [isFavorite, setIsFavorite] = useState(false);
     const [favoriteLoading, setFavoriteLoading] = useState(false);
+    const [reportReason, setReportReason] = useState("Spam");
+    const [reportDetails, setReportDetails] = useState("");
+    const [reporting, setReporting] = useState(false);
+    const [openReportDialog, setOpenReportDialog] = useState(false);
 
     useEffect(() => {
         fetchRecipe();
@@ -140,11 +157,60 @@ export default function RecipeDetailsPage({ params }) {
         }
     }
 
+    const handleReportRecipe = async () => {
+        try {
+            setReporting(true);
+
+            const tokenData = await authClient.token();
+
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/reports`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${tokenData.data.token}`,
+                    },
+                    body: JSON.stringify({
+                        recipeId: recipe._id,
+                        recipeName: recipe.recipeName,
+                        recipeOwnerEmail: recipe.authorEmail,
+                        reportReason,
+                        reportDetails,
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                toast.error(data.message);
+                return;
+            }
+
+            toast.success(data.message);
+
+            setReportReason("Spam");
+            setReportDetails("");
+
+            setOpenReportDialog(false);
+
+        } catch (error) {
+
+            console.error(error);
+
+            toast.error("Failed to submit report.");
+
+        } finally {
+
+            setReporting(false);
+
+        }
+    };
+
     if (loading) {
         return (
-            <div className="flex min-h-[70vh] items-center justify-center">
-                <h2 className="text-xl font-semibold">Loading...</h2>
-            </div>
+            <LoadingSpinner />
         );
     }
 
@@ -276,8 +342,8 @@ export default function RecipeDetailsPage({ params }) {
                             onClick={isFavorite ? removeFavorite : addFavorite}
                             disabled={favoriteLoading}
                             className={`flex items-center gap-2 rounded-xl px-5 py-3 text-white transition ${isFavorite
-                                    ? "bg-pink-600 hover:bg-pink-700"
-                                    : "bg-yellow-500 hover:bg-yellow-600"
+                                ? "bg-pink-600 hover:bg-pink-700"
+                                : "bg-yellow-500 hover:bg-yellow-600"
                                 }`}
                         >
                             <Heart
@@ -292,9 +358,120 @@ export default function RecipeDetailsPage({ params }) {
                                     : "Add Favorite"}
                         </button>
 
-                        <button className="rounded-xl bg-purple-500 px-5 py-3 text-white">
-                            🚨 Report
-                        </button>
+                        <Dialog
+                            open={openReportDialog}
+                            onOpenChange={setOpenReportDialog}
+                        >
+                            <DialogTrigger asChild>
+
+                                <button className="rounded-xl bg-red-500 px-6 py-3 font-semibold text-white transition hover:bg-red-600">
+                                    🚨 Report Recipe
+                                </button>
+
+                            </DialogTrigger>
+
+                            <DialogContent className="sm:max-w-lg">
+
+                                <DialogHeader>
+
+                                    <DialogTitle>
+                                        Report Recipe
+                                    </DialogTitle>
+
+                                    <DialogDescription>
+                                        Help us keep RecipeHub safe by reporting inappropriate recipes.
+                                    </DialogDescription>
+
+                                </DialogHeader>
+
+                                <div className="space-y-5">
+
+                                    <div>
+
+                                        <Label>
+                                            Report Reason
+                                        </Label>
+
+                                        <select
+                                            value={reportReason}
+                                            onChange={(e) =>
+                                                setReportReason(e.target.value)
+                                            }
+                                            className="mt-2 w-full rounded-md border p-2"
+                                        >
+                                            <option value="Spam">
+                                                Spam
+                                            </option>
+
+                                            <option value="Inappropriate Content">
+                                                Inappropriate Content
+                                            </option>
+
+                                            <option value="False Information">
+                                                False Information
+                                            </option>
+
+                                            <option value="Copyright Violation">
+                                                Copyright Violation
+                                            </option>
+
+                                            <option value="Harassment">
+                                                Harassment
+                                            </option>
+
+                                            <option value="Other">
+                                                Other
+                                            </option>
+
+                                        </select>
+
+                                    </div>
+
+                                    <div>
+
+                                        <Label>
+                                            Additional Details
+                                        </Label>
+
+                                        <Textarea
+                                            rows={5}
+                                            value={reportDetails}
+                                            onChange={(e) =>
+                                                setReportDetails(e.target.value)
+                                            }
+                                            placeholder="Explain why you are reporting this recipe..."
+                                        />
+
+                                    </div>
+
+                                </div>
+
+                                <DialogFooter>
+
+                                    <button
+                                        onClick={() =>
+                                            setOpenReportDialog(false)
+                                        }
+                                        className="rounded-lg border px-4 py-2"
+                                    >
+                                        Cancel
+                                    </button>
+
+                                    <button
+                                        onClick={handleReportRecipe}
+                                        disabled={reporting}
+                                        className="rounded-lg bg-red-500 px-5 py-2 text-white hover:bg-red-600 disabled:opacity-50"
+                                    >
+                                        {reporting
+                                            ? "Submitting..."
+                                            : "Submit Report"}
+                                    </button>
+
+                                </DialogFooter>
+
+                            </DialogContent>
+
+                        </Dialog>
 
                         <button className="rounded-xl bg-green-600 px-5 py-3 text-white">
                             💳 Purchase Recipe

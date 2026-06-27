@@ -21,12 +21,12 @@ export default function AdminUsersPage() {
         fetchUsers();
     }, []);
 
-    const fetchUsers = async () => {
+    const fetchUsers = async (search = "") => {
         try {
             const tokenData = await authClient.token();
 
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/admin/users`,
+                `${process.env.NEXT_PUBLIC_API_URL}/admin/users?search=${encodeURIComponent(search)}`,
                 {
                     headers: {
                         Authorization: `Bearer ${tokenData.data.token}`,
@@ -169,10 +169,6 @@ export default function AdminUsersPage() {
         );
     }
 
-    const filteredUsers = users.filter((user) =>
-        user.name?.toLowerCase().includes(search.toLowerCase()) ||
-        user.email?.toLowerCase().includes(search.toLowerCase())
-    );
 
     return (
         <div className="min-h-screen bg-gray-50 p-8">
@@ -193,7 +189,11 @@ export default function AdminUsersPage() {
                         type="text"
                         placeholder="Search users..."
                         value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            setSearch(value);
+                            fetchUsers(value);
+                        }}
                         className="w-80 rounded-xl border bg-white px-4 py-3 outline-none focus:border-[#FF6B35]"
                     />
                 </div>
@@ -230,7 +230,7 @@ export default function AdminUsersPage() {
 
                         <tbody>
 
-                            {filteredUsers.map((user) => (
+                            {users.map((user) => (
 
                                 <tr
                                     key={user._id}

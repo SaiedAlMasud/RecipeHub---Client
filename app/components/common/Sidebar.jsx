@@ -40,16 +40,6 @@ const publicLinks = [
     href: "/recipes",
     icon: BookOpen,
   },
-  {
-    label: "Featured Recipes",
-    href: "/featured",
-    icon: Star,
-  },
-  {
-    label: "Popular Recipes",
-    href: "/popular",
-    icon: Flame,
-  },
 ];
 
 const userLinks = [
@@ -87,6 +77,11 @@ const userLinks = [
 
 const adminLinks = [
   {
+    label: "Dashboard",
+    href: "/dashboard/admin",
+    icon: LayoutDashboard,
+  },
+  {
     label: "Manage Users",
     href: "/dashboard/admin/users",
     icon: Users,
@@ -98,12 +93,12 @@ const adminLinks = [
   },
   {
     label: "Reports",
-    href: "/admin/reports",
+    href: "/dashboard/admin/reports",
     icon: ShieldAlert,
   },
   {
     label: "Transactions",
-    href: "/admin/transactions",
+    href: "/dashboard/admin/transactions",
     icon: CreditCard,
   },
 ];
@@ -174,27 +169,28 @@ export default function Sidebar() {
       <div className="flex-1 overflow-y-auto px-4 py-6">
         <div className="space-y-1">
           {/* Public Links */}
-          {publicLinks.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
+          {(!user || user.role !== "admin") &&
+            publicLinks.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname === item.href;
 
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${isActive
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${isActive
                     ? "bg-linear-to-r from-[#FF512F] to-[#F09819] text-white shadow-lg"
                     : "text-gray-300 hover:bg-white/5 hover:text-white"
-                  }`}
-              >
-                <Icon size={20} />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
+                    }`}
+                >
+                  <Icon size={20} />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
 
           {/* User Links */}
-          {user &&
+          {user && user.role !== "admin" &&
             userLinks.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -204,8 +200,8 @@ export default function Sidebar() {
                   key={item.href}
                   href={item.href}
                   className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${isActive
-                      ? "bg-linear-to-r from-[#FF512F] to-[#F09819] text-white shadow-lg"
-                      : "text-gray-300 hover:bg-white/5 hover:text-white"
+                    ? "bg-linear-to-r from-[#FF512F] to-[#F09819] text-white shadow-lg"
+                    : "text-gray-300 hover:bg-white/5 hover:text-white"
                     }`}
                 >
                   <Icon size={20} />
@@ -225,8 +221,8 @@ export default function Sidebar() {
                   key={item.href}
                   href={item.href}
                   className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${isActive
-                      ? "bg-linear-to-r from-[#FF512F] to-[#F09819] text-white shadow-lg"
-                      : "text-gray-300 hover:bg-white/5 hover:text-white"
+                    ? "bg-linear-to-r from-[#FF512F] to-[#F09819] text-white shadow-lg"
+                    : "text-gray-300 hover:bg-white/5 hover:text-white"
                     }`}
                 >
                   <Icon size={20} />

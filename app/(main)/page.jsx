@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
+import FeaturedRecipes from "../components/home/FeaturedRecipes";
 
 const Homepage = () => {
   const router = useRouter();
@@ -26,9 +27,10 @@ const Homepage = () => {
     }
   }, [searchParams, router]);
 
+
   return (
     <div>
-      Homepage
+      <FeaturedRecipes />
     </div>
   );
 };
