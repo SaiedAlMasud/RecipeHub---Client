@@ -21,7 +21,7 @@ export default function MyRecipesPage() {
         try {
             const tokenData = await authClient.token();
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/my-recipes`,
+                `${process.env.NEXT_PUBLIC_API_URL}/recipes/my-recipes`,
                 {
                     headers: {
                         Authorization: `Bearer ${tokenData.data.token}`,
