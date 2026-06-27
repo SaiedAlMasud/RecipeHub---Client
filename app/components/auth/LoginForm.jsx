@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { signIn } from "@/lib/auth-client";
+import { signIn, authClient } from "@/lib/auth-client";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -23,7 +23,7 @@ export default function LoginForm() {
     try {
       await signIn.social({
         provider: "google",
-        callbackURL: "/",
+        callbackURL: "/?loggedIn=true",
       });
     } catch (error) {
       console.error(error);
@@ -48,18 +48,30 @@ export default function LoginForm() {
     }
 
     try {
-      const { data, error } = await signIn.email({
+      const { error } = await signIn.email({
         email,
         password,
-        callbackURL: "/?loggedIn=true",
       });
 
       if (error) {
         toast.error(error.message);
         return;
       }
+      const session = await authClient.getSession({
+        query: {
+          disableCookieCache: true,
+        },
+      });
 
-      router.push("/?loggedIn=true");
+      const user = session.data?.user;
+
+      if (user?.role === "admin") {
+        router.replace("/dashboard/admin");
+      } else {
+        router.replace("/?loggedIn=true");
+      }
+
+
     } catch (err) {
       console.error(err);
       toast.error("Something went wrong.");

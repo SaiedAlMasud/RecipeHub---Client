@@ -8,7 +8,7 @@ export default function TestPage() {
         const tokenData = await authClient.token();
 
         const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/admin/transactions`,
+            `${process.env.NEXT_PUBLIC_API_URL}/purchase/my-purchases`,
             {
                 headers: {
                     Authorization: `Bearer ${tokenData.data.token}`,

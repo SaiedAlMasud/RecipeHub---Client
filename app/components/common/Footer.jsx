@@ -56,14 +56,14 @@ export default function Footer() {
                             </Link>
 
                             <Link
-                                href="/featured"
+                                href="/#featured-recipes"
                                 className="block text-gray-400 transition hover:text-orange-400"
                             >
                                 Featured Recipes
                             </Link>
 
                             <Link
-                                href="/popular"
+                                href="/#popular-recipes"
                                 className="block text-gray-400 transition hover:text-orange-400"
                             >
                                 Popular Recipes

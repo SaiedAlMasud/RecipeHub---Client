@@ -44,11 +44,6 @@ const publicLinks = [
 
 const userLinks = [
   {
-    label: "Dashboard",
-    href: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
     label: "Add Recipe",
     href: "/dashboard/add-recipe",
     icon: PlusCircle,

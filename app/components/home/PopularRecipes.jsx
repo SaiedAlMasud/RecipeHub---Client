@@ -39,7 +39,7 @@ export default function PopularRecipes() {
     }
 
     return (
-        <section className="bg-white py-20">
+        <section id="popular-recipes" className="bg-white py-20">
             <div className="mx-auto max-w-7xl px-6">
 
                 <div className="mb-14 text-center">

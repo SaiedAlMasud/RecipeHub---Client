@@ -18,6 +18,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import LoadingSpinner from "@/app/components/LoadingSpinner";
+import { Button } from "@/components/ui/button";
+import useAuth from "@/hooks/useAuth";
 
 export default function RecipeDetailsPage({ params }) {
     const { id } = use(params);
@@ -31,11 +33,62 @@ export default function RecipeDetailsPage({ params }) {
     const [reportDetails, setReportDetails] = useState("");
     const [reporting, setReporting] = useState(false);
     const [openReportDialog, setOpenReportDialog] = useState(false);
+    const [liking, setLiking] = useState(false);
+    const [liked, setLiked] = useState(false);
 
     useEffect(() => {
         fetchRecipe();
         checkFavorite();
     }, []);
+    const { data: session } = useAuth();
+    async function likeRecipe() {
+        try {
+            setLiking(true);
+
+            const tokenData = await authClient.token();
+
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/recipes/${recipe._id}/like`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        Authorization: `Bearer ${tokenData.data.token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                toast.error(data.message);
+                return;
+            }
+
+            setLiked(data.liked);
+
+            setRecipe((prev) => ({
+                ...prev,
+                likesCount: data.likesCount,
+            }));
+
+            toast.success(
+                data.liked
+                    ? "Recipe liked!"
+                    : "Like removed!"
+            );
+
+        } catch (error) {
+
+            console.error(error);
+
+            toast.error("Something went wrong.");
+
+        } finally {
+
+            setLiking(false);
+
+        }
+    }
 
     async function fetchRecipe() {
         try {
@@ -52,6 +105,10 @@ export default function RecipeDetailsPage({ params }) {
             const data = await response.json();
 
             setRecipe(data);
+            setLiked(
+                data.likedUsers?.includes(session.user.email)
+            );
+
         } catch (error) {
             console.error(error);
             setError("Failed to load recipe");
@@ -208,6 +265,42 @@ export default function RecipeDetailsPage({ params }) {
         }
     };
 
+    const handlePurchase = async () => {
+        try {
+            const tokenData = await authClient.token();
+
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/purchase/create-checkout-session`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${tokenData.data.token}`,
+                    },
+                    body: JSON.stringify({
+                        recipeId: recipe._id,
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                toast.error(data.message);
+                return;
+            }
+
+            window.location.href = data.url;
+
+        } catch (error) {
+
+            console.error(error);
+
+            toast.error("Failed to start payment.");
+
+        }
+    };
+
     if (loading) {
         return (
             <LoadingSpinner />
@@ -334,8 +427,19 @@ export default function RecipeDetailsPage({ params }) {
 
                     {/* Action Buttons */}
                     <div className="mt-10 flex flex-wrap gap-4">
-                        <button className="rounded-xl bg-red-500 px-5 py-3 text-white">
-                            ❤️ Like
+                        <button
+                            onClick={likeRecipe}
+                            disabled={liking}
+                            className={`rounded-xl px-5 py-3 font-semibold text-white transition ${liked
+                                    ? "bg-gray-600 hover:bg-gray-700"
+                                    : "bg-red-500 hover:bg-red-600"
+                                }`}
+                        >
+                            {liking
+                                ? "Loading..."
+                                : liked
+                                    ? "🤍 Unlike"
+                                    : "❤️ Like"}
                         </button>
 
                         <button
@@ -473,9 +577,14 @@ export default function RecipeDetailsPage({ params }) {
 
                         </Dialog>
 
-                        <button className="rounded-xl bg-green-600 px-5 py-3 text-white">
+                        <button
+                            onClick={handlePurchase}
+                            className="rounded-xl bg-green-600 px-5 py-3 text-white"
+                        >
                             💳 Purchase Recipe
                         </button>
+
+
                     </div>
                 </div>
             </div>

@@ -66,7 +66,7 @@ export default function PaymentPage() {
                     <div className="mt-8 rounded-2xl bg-orange-50 p-6">
 
                         <h2 className="text-5xl font-bold text-orange-500">
-                            ৳499
+                            $ 499
                         </h2>
 
                         <p className="mt-2 text-gray-500">

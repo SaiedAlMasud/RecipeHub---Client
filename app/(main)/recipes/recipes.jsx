@@ -1,5 +1,6 @@
 "use client";
 
+import LoadingSpinner from "@/app/components/LoadingSpinner";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -8,16 +9,24 @@ export default function RecipePage() {
     const [recipes, setRecipes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [selectedCategory, setSelectedCategory] = useState("All");
 
     useEffect(() => {
-        fetchRecipes();
-    }, []);
+        fetchRecipes(currentPage, selectedCategory);
+    }, [currentPage, selectedCategory]);
 
-    const fetchRecipes = async () => {
+    const fetchRecipes = async (
+        page = 1,
+        category = "All"
+    ) => {
         try {
             setLoading(true);
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/recipes`);
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/recipes?page=${page}&limit=6&category=${category}`
+            );
 
             if (!response.ok) {
                 throw new Error("Failed to fetch recipes");
@@ -25,20 +34,28 @@ export default function RecipePage() {
 
             const data = await response.json();
 
-            setRecipes(data);
+            setRecipes(data.recipes);
+
+            setCurrentPage(data.currentPage);
+
+            setTotalPages(data.totalPages);
+
         } catch (err) {
+
             console.error(err);
+
             setError("Failed to load recipes");
+
         } finally {
+
             setLoading(false);
+
         }
     };
 
     if (loading) {
         return (
-            <div className="flex min-h-[70vh] items-center justify-center">
-                <span className="loading loading-spinner loading-lg"></span>
-            </div>
+            <LoadingSpinner />
         );
     }
 
@@ -61,6 +78,50 @@ export default function RecipePage() {
                 <p className="mt-2 text-gray-500">
                     Discover delicious recipes shared by our community.
                 </p>
+            </div>
+
+            <div className="mb-8 flex items-center gap-4">
+
+                <label className="font-medium">
+                    Category:
+                </label>
+
+                <select
+                    value={selectedCategory}
+                    onChange={(e) => {
+                        setCurrentPage(1);
+                        setSelectedCategory(e.target.value);
+                    }}
+                    className="rounded-lg border px-4 py-2"
+                >
+                    <option value="All">All Categories</option>
+
+                    <option value="Breakfast">
+                        Breakfast
+                    </option>
+
+                    <option value="Lunch">
+                        Lunch
+                    </option>
+
+                    <option value="Dinner">
+                        Dinner
+                    </option>
+
+                    <option value="Dessert">
+                        Dessert
+                    </option>
+
+                    <option value="Snacks">
+                        Snacks
+                    </option>
+
+                    <option value="Drinks">
+                        Drinks
+                    </option>
+
+                </select>
+
             </div>
 
             {/* Empty State */}
@@ -140,7 +201,53 @@ export default function RecipePage() {
                         </div>
                     ))}
                 </div>
+
+
             )}
+
+            <div className="mt-12 flex items-center justify-center gap-2">
+
+                <button
+                    disabled={currentPage === 1}
+                    onClick={() =>
+                        setCurrentPage((prev) => prev - 1)
+                    }
+                    className="rounded-lg border px-4 py-2 disabled:opacity-50"
+                >
+                    Previous
+                </button>
+
+                {Array.from(
+                    {
+                        length: totalPages,
+                    },
+                    (_, index) => (
+                        <button
+                            key={index}
+                            onClick={() =>
+                                setCurrentPage(index + 1)
+                            }
+                            className={`rounded-lg px-4 py-2 ${currentPage === index + 1
+                                    ? "bg-orange-500 text-white"
+                                    : "border"
+                                }`}
+                        >
+                            {index + 1}
+                        </button>
+                    )
+                )}
+
+                <button
+                    disabled={currentPage === totalPages}
+                    onClick={() =>
+                        setCurrentPage((prev) => prev + 1)
+                    }
+                    className="rounded-lg border px-4 py-2 disabled:opacity-50"
+                >
+                    Next
+                </button>
+
+            </div>
         </section>
     );
 }

@@ -41,7 +41,7 @@ export default function FeaturedRecipes() {
     }
 
     return (
-        <section className="mx-auto max-w-7xl px-4 py-20">
+        <section id="featured-recipes" className="mx-auto max-w-7xl px-4 py-20">
 
             <div className="mb-12 text-center">
 

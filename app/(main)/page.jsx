@@ -8,11 +8,21 @@ import HeroBanner from "../components/home/HeroBanner";
 import PopularRecipes from "../components/home/PopularRecipes";
 import WhyChooseUs from "../components/home/WhyChooseUs";
 import HowItWorks from "../components/home/HowItWorks";
-import Footer from "../components/common/Footer";
+import useAuth from "@/hooks/useAuth";
 
 const Homepage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data, isPending } = useAuth();
+  const user = data?.user;
+
+  useEffect(() => {
+    if (isPending) return;
+
+    if (user?.role === "admin") {
+      router.replace("/dashboard");
+    }
+  }, [user, isPending, router]);
 
   useEffect(() => {
     if (searchParams.get("registered") === "true") {
@@ -33,6 +43,13 @@ const Homepage = () => {
   }, [searchParams, router]);
 
 
+  if (isPending) {
+    return null;
+  }
+
+  if (user?.role === "admin") {
+    return null;
+  }
   return (
     <div>
       <HeroBanner />
@@ -40,7 +57,6 @@ const Homepage = () => {
       <PopularRecipes />
       <WhyChooseUs />
       <HowItWorks />
-      <Footer />
     </div>
   );
 };

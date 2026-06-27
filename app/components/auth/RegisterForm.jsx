@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { Eye, EyeOff, ChefHat } from "lucide-react";
 
-import { signUp } from "@/lib/auth-client";
+import { signIn, signUp } from "@/lib/auth-client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -25,9 +25,9 @@ export default function RegisterForm() {
 
     const handleGoogleSignUp = async () => {
         try {
-            await authClient.signIn.social({
+            await signIn.social({
                 provider: "google",
-                callbackURL: "/",
+                callbackURL: "/?loggedIn=true",
             });
         } catch (error) {
             console.error(error);

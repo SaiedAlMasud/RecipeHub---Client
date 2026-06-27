@@ -9,6 +9,11 @@ export default function AdminTransactionsPage() {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
 
+    const totalAmount = transactions.reduce(
+        (total, payment) => total + Number(payment.amount || 0),
+        0
+    );
+
     useEffect(() => {
         fetchTransactions();
     }, []);
@@ -133,7 +138,7 @@ export default function AdminTransactionsPage() {
                                 >
 
                                     <td className="px-6 py-5">
-                                        {payment.customerEmail}
+                                        {payment.customerEmail || payment.userEmail}
                                     </td>
 
                                     <td className="font-semibold text-green-600">
@@ -141,9 +146,7 @@ export default function AdminTransactionsPage() {
                                     </td>
 
                                     <td>
-                                        {new Date(
-                                            payment.createdAt
-                                        ).toLocaleDateString()}
+                                        {new Date( payment.createdAt || payment.paidAt ).toLocaleDateString()}
                                     </td>
 
                                     <td>
@@ -155,12 +158,28 @@ export default function AdminTransactionsPage() {
                                     </td>
 
                                     <td className="max-w-xs truncate">
-                                        {payment.paymentIntentId}
+                                        {payment.paymentIntentId || payment.transactionId}
                                     </td>
 
                                 </tr>
 
                             ))}
+
+                            <tr className="border-t-2 bg-orange-50 font-bold">
+                                <td className="px-6 py-5">
+                                    Total
+                                </td>
+
+                                <td className="text-green-700">
+                                    ${totalAmount.toFixed(2)}
+                                </td>
+
+                                <td></td>
+
+                                <td></td>
+
+                                <td></td>
+                            </tr>
 
                         </tbody>
 
