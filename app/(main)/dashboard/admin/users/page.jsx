@@ -104,6 +104,65 @@ export default function AdminUsersPage() {
         }
     };
 
+    const handleBlockUser = async (userId) => {
+        try {
+            const tokenData = await authClient.token();
+
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/admin/users/${userId}/block`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        Authorization: `Bearer ${tokenData.data.token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                toast.error(data.message);
+                return;
+            }
+
+            toast.success(data.message);
+
+            fetchUsers();
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to update user.");
+        }
+    };
+
+    const handleDeleteUser = async (userId) => {
+        try {
+            const tokenData = await authClient.token();
+
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/admin/users/${userId}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${tokenData.data.token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                toast.error(data.message);
+                return;
+            }
+
+            toast.success(data.message);
+
+            fetchUsers();
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to delete user.");
+        }
+    };
     if (loading) {
         return (
             <LoadingSpinner />
@@ -243,23 +302,27 @@ export default function AdminUsersPage() {
                                     </td>
 
                                     <td>
-
-                                        <span className="rounded-full bg-green-100 px-4 py-1 text-sm text-green-700">
-                                            Active
-                                        </span>
-
+                                        {user.isBlocked ? (
+                                            <span className="rounded-full bg-red-100 px-4 py-1 text-sm font-medium text-red-700">
+                                                Blocked
+                                            </span>
+                                        ) : (
+                                            <span className="rounded-full bg-green-100 px-4 py-1 text-sm font-medium text-green-700">
+                                                Active
+                                            </span>
+                                        )}
                                     </td>
 
                                     <td>
 
-                                        <div className="flex justify-center gap-3">
+                                        <div className="flex flex-wrap justify-center gap-2">
 
                                             <AlertDialog>
                                                 <AlertDialogTrigger asChild>
                                                     <button
                                                         className={`rounded-lg px-4 py-2 text-white transition ${user.role === "admin"
-                                                                ? "bg-amber-500 hover:bg-amber-600"
-                                                                : "bg-blue-500 hover:bg-blue-600"
+                                                            ? "bg-amber-500 hover:bg-amber-600"
+                                                            : "bg-blue-500 hover:bg-blue-600"
                                                             }`}
                                                     >
                                                         {user.role === "admin"
@@ -334,12 +397,117 @@ export default function AdminUsersPage() {
 
                                                 </AlertDialogContent>
                                             </AlertDialog>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <button
+                                                        className={`rounded-lg px-4 py-2 text-white transition ${user.isBlocked
+                                                            ? "bg-green-600 hover:bg-green-700"
+                                                            : "bg-red-600 hover:bg-red-700"
+                                                            }`}
+                                                    >
+                                                        {user.isBlocked ? "Unblock" : "Block"}
+                                                    </button>
+                                                </AlertDialogTrigger>
 
-                                            <button
-                                                className="rounded-lg bg-red-500 px-4 py-2 text-white"
-                                            >
-                                                Delete
-                                            </button>
+                                                <AlertDialogContent>
+
+                                                    <AlertDialogHeader>
+
+                                                        <AlertDialogTitle>
+                                                            {user.isBlocked
+                                                                ? "Unblock User?"
+                                                                : "Block User?"}
+                                                        </AlertDialogTitle>
+
+                                                        <AlertDialogDescription>
+
+                                                            {user.isBlocked ? (
+                                                                <>
+                                                                    Are you sure you want to unblock{" "}
+                                                                    <strong>{user.name}</strong>?
+
+                                                                    <br />
+                                                                    <br />
+
+                                                                    They will regain access to RecipeHub.
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    Are you sure you want to block{" "}
+                                                                    <strong>{user.name}</strong>?
+
+                                                                    <br />
+                                                                    <br />
+
+                                                                    They will not be able to access protected features until they are unblocked.
+                                                                </>
+                                                            )}
+
+                                                        </AlertDialogDescription>
+
+                                                    </AlertDialogHeader>
+
+                                                    <AlertDialogFooter>
+
+                                                        <AlertDialogCancel>
+                                                            Cancel
+                                                        </AlertDialogCancel>
+
+                                                        <AlertDialogAction
+                                                            onClick={() => handleBlockUser(user._id)}
+                                                        >
+                                                            {user.isBlocked ? "Unblock" : "Block"}
+                                                        </AlertDialogAction>
+
+                                                    </AlertDialogFooter>
+
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <button className="rounded-lg bg-red-500 px-4 py-2 text-white transition hover:bg-red-600">
+                                                        Delete
+                                                    </button>
+                                                </AlertDialogTrigger>
+
+                                                <AlertDialogContent>
+
+                                                    <AlertDialogHeader>
+
+                                                        <AlertDialogTitle>
+                                                            Delete User?
+                                                        </AlertDialogTitle>
+
+                                                        <AlertDialogDescription>
+                                                            Are you sure you want to permanently delete{" "}
+                                                            <strong>{user.name}</strong>?
+
+                                                            <br />
+                                                            <br />
+
+                                                            This action cannot be undone. The users account will be permanently removed from RecipeHub.
+                                                        </AlertDialogDescription>
+
+                                                    </AlertDialogHeader>
+
+                                                    <AlertDialogFooter>
+
+                                                        <AlertDialogCancel>
+                                                            Cancel
+                                                        </AlertDialogCancel>
+
+                                                        <AlertDialogAction
+                                                            onClick={() => handleDeleteUser(user._id)}
+                                                            className="bg-red-600 hover:bg-red-700"
+                                                        >
+                                                            Delete User
+                                                        </AlertDialogAction>
+
+                                                    </AlertDialogFooter>
+
+                                                </AlertDialogContent>
+                                            </AlertDialog>
 
                                         </div>
 

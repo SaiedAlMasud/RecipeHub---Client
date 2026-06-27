@@ -88,12 +88,12 @@ const userLinks = [
 const adminLinks = [
   {
     label: "Manage Users",
-    href: "/admin/users",
+    href: "/dashboard/admin/users",
     icon: Users,
   },
   {
     label: "Manage Recipes",
-    href: "/admin/recipes",
+    href: "/dashboard/admin/recipes",
     icon: UtensilsCrossed,
   },
   {

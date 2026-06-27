@@ -8,9 +8,9 @@ export default function TestPage() {
             const tokenData = await authClient.token();
 
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/admin/users/6a3d4a452d9b3305255f5502/block`,
+                `${process.env.NEXT_PUBLIC_API_URL}/admin/users/6a3d4a452d9b3305255f5502`,
                 {
-                    method: "PATCH",
+                    method: "DELETE",
                     headers: {
                         Authorization: `Bearer ${tokenData.data.token}`,
                     },
@@ -20,6 +20,7 @@ export default function TestPage() {
             const data = await response.json();
 
             console.log(data);
+            alert(JSON.stringify(data, null, 2));
 
             alert(JSON.stringify(data, null, 2));
         } catch (error) {
