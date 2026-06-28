@@ -1,18 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import toast from "react-hot-toast";
-import FeaturedRecipes from "../components/home/FeaturedRecipes";
-import HeroBanner from "../components/home/HeroBanner";
-import PopularRecipes from "../components/home/PopularRecipes";
-import WhyChooseUs from "../components/home/WhyChooseUs";
-import HowItWorks from "../components/home/HowItWorks";
+import { Suspense, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import useAuth from "@/hooks/useAuth";
+import HomePage from "../components/home/HomePage";
 
 const Homepage = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { data, isPending } = useAuth();
   const user = data?.user;
 
@@ -24,24 +18,6 @@ const Homepage = () => {
     }
   }, [user, isPending, router]);
 
-  useEffect(() => {
-    if (searchParams.get("registered") === "true") {
-      toast.success("🎉 Registration Successful!");
-
-      router.replace("/", {
-        scroll: false,
-      });
-    }
-
-    if (searchParams.get("loggedIn") === "true") {
-      toast.success("👋 Welcome back!");
-
-      router.replace("/", {
-        scroll: false,
-      });
-    }
-  }, [searchParams, router]);
-
 
   if (isPending) {
     return null;
@@ -52,11 +28,9 @@ const Homepage = () => {
   }
   return (
     <div>
-      <HeroBanner />
-      <FeaturedRecipes />
-      <PopularRecipes />
-      <WhyChooseUs />
-      <HowItWorks />
+      <Suspense fallback={null}>
+        <HomePage />
+      </Suspense>
     </div>
   );
 };

@@ -94,7 +94,9 @@ export default function RegisterForm() {
                 return;
             }
 
-            router.push("/?registered=true");
+            toast.success("🎉 Registration Successful!");
+
+            router.push("/");
 
         } catch (err) {
             console.error(err);

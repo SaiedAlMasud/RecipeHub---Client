@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Clock } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import LoadingSpinner from "@/app/components/LoadingSpinner";
 
 export default function MyRecipesPage() {
     const [recipes, setRecipes] = useState([]);
@@ -38,31 +39,50 @@ export default function MyRecipesPage() {
     };
 
     const handleDelete = async (id) => {
-        if (confirm("Delete this recipe?")) {
-            try {
-                const response = await fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL}/recipes/${id}`,
-                    { method: "DELETE" }
-                );
-                if (response.ok) {
-                    setRecipes(recipes.filter((r) => r._id !== id));
-                    toast.success("Recipe deleted successfully");
-                }
-            } catch (error) {
-                //console.error("Delete error:", error);
-                toast.error("Failed to delete recipe");
+        if (!confirm("Delete this recipe?")) return;
+
+        try {
+            const tokenData = await authClient.token();
+
+            const token = tokenData?.data?.token;
+
+            if (!token) {
+                toast.error("Please login first.");
+                return;
             }
+
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/recipes/${id}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                toast.error(data.message);
+                return;
+            }
+
+            setRecipes((prev) =>
+                prev.filter((recipe) => recipe._id !== id)
+            );
+
+            toast.success("Recipe deleted successfully");
+
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to delete recipe");
         }
     };
 
     if (loading) {
         return (
-            <div className="flex h-96 items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FF6B35] mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Loading recipes...</p>
-                </div>
-            </div>
+            <LoadingSpinner />
         );
     }
 

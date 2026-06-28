@@ -57,6 +57,7 @@ export default function LoginForm() {
         toast.error(error.message);
         return;
       }
+
       const session = await authClient.getSession({
         query: {
           disableCookieCache: true,
@@ -65,10 +66,12 @@ export default function LoginForm() {
 
       const user = session.data?.user;
 
+      toast.success("👋 Welcome back!");
+
       if (user?.role === "admin") {
         router.replace("/dashboard/admin");
       } else {
-        router.replace("/?loggedIn=true");
+        router.replace("/");
       }
 
 

@@ -35,13 +35,21 @@ export default function RecipeDetailsPage({ params }) {
     const [openReportDialog, setOpenReportDialog] = useState(false);
     const [liking, setLiking] = useState(false);
     const [liked, setLiked] = useState(false);
+    const { data: session } = useAuth();
 
     useEffect(() => {
         fetchRecipe();
-        checkFavorite();
-    }, []);
-    const { data: session } = useAuth();
+
+        if (session?.user) {
+            checkFavorite();
+        }
+    }, [session]);
+
     async function likeRecipe() {
+        if (!session?.user) {
+            toast.error("Please login first.");
+            return;
+        }
         try {
             setLiking(true);
 
@@ -106,7 +114,9 @@ export default function RecipeDetailsPage({ params }) {
 
             setRecipe(data);
             setLiked(
-                data.likedUsers?.includes(session.user.email)
+                session?.user
+                    ? data.likedUsers?.includes(session.user.email)
+                    : false
             );
 
         } catch (error) {
@@ -118,6 +128,7 @@ export default function RecipeDetailsPage({ params }) {
     }
 
     async function checkFavorite() {
+
         try {
             const tokenData = await authClient.token();
 
@@ -141,6 +152,10 @@ export default function RecipeDetailsPage({ params }) {
     }
 
     async function addFavorite() {
+        if (!session?.user) {
+            toast.error("Please login first.");
+            return;
+        }
         try {
             setFavoriteLoading(true);
 
@@ -180,6 +195,10 @@ export default function RecipeDetailsPage({ params }) {
     }
 
     async function removeFavorite() {
+        if (!session?.user) {
+            toast.error("Please login first.");
+            return;
+        }
         try {
             setFavoriteLoading(true);
 
@@ -215,6 +234,10 @@ export default function RecipeDetailsPage({ params }) {
     }
 
     const handleReportRecipe = async () => {
+        if (!session?.user) {
+            toast.error("Please login first.");
+            return;
+        }
         try {
             setReporting(true);
 
@@ -266,6 +289,10 @@ export default function RecipeDetailsPage({ params }) {
     };
 
     const handlePurchase = async () => {
+        if (!session?.user) {
+            toast.error("Please login first.");
+            return;
+        }
         try {
             const tokenData = await authClient.token();
 
@@ -431,8 +458,8 @@ export default function RecipeDetailsPage({ params }) {
                             onClick={likeRecipe}
                             disabled={liking}
                             className={`rounded-xl px-5 py-3 font-semibold text-white transition ${liked
-                                    ? "bg-gray-600 hover:bg-gray-700"
-                                    : "bg-red-500 hover:bg-red-600"
+                                ? "bg-gray-600 hover:bg-gray-700"
+                                : "bg-red-500 hover:bg-red-600"
                                 }`}
                         >
                             {liking
